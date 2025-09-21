@@ -1,0 +1,851 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Legal Document Demystifier — Prototype</title>
+
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap');
+:root{
+  --bg:#f6f8fb;
+  --card:#ffffff;
+  --muted:#6b7280;
+  --accent:#4338ca;       
+  --accent-2:#7c3aed;     
+  --red:#ef4444;
+  --yellow:#f59e0b;
+  --green:#16a34a;
+  --glass: rgba(255,255,255,0.8);
+  --shadow: 0 8px 22px rgba(16,24,40,0.08);
+  --radius:14px;
+}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0;font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial;}
+body{background:linear-gradient(180deg,#fbfdff 0%, #eef2ff 100%);color:#0f172a;font-size:14px;line-height:1.45;}
+.app{max-width:1200px;margin:22px auto;padding:20px;display:flex;flex-direction:column;gap:18px}
+
+
+.header{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.brand{display:flex;gap:12px;align-items:center}
+.logo{width:44px;height:44px;border-radius:10px;background:linear-gradient(135deg,var(--accent),var(--accent-2));display:flex;align-items:center;justify-content:center;color:white;font-weight:800;box-shadow:0 6px 18px rgba(124,58,237,0.18)}
+.title{font-weight:700;font-size:18px;color:var(--accent)}
+.subtitle{color:var(--muted);font-size:13px}
+.header-actions{display:flex;gap:8px;align-items:center}
+.btn{background:var(--accent);color:white;padding:9px 12px;border-radius:10px;border:none;cursor:pointer;font-weight:600;box-shadow:var(--shadow)}
+.btn.ghost{background:white;color:var(--accent);border:1px solid #eef2ff;box-shadow:none}
+.icon-btn{display:inline-flex;align-items:center;gap:8px}
+
+
+.layout{display:grid;grid-template-columns:260px 1fr 380px;gap:16px;align-items:start}
+
+
+.sidebar{background:var(--card);padding:14px;border-radius:var(--radius);box-shadow:var(--shadow);display:flex;flex-direction:column;gap:10px}
+.sidebar h4{margin:0;color:var(--accent);font-weight:700}
+.sidebar .nav{display:flex;flex-direction:column;gap:6px}
+.side-item{padding:8px 10px;border-radius:8px;color:var(--muted);cursor:pointer;font-weight:600}
+.side-item:hover{background:#f3f2ff;color:var(--accent)}
+
+
+.doc{background:var(--card);padding:14px;border-radius:var(--radius);box-shadow:var(--shadow);display:flex;flex-direction:column;gap:12px;max-height:74vh;overflow:auto}
+.doc-top{display:flex;justify-content:space-between;align-items:center;gap:12px}
+.doc-info{display:flex;flex-direction:column}
+.doc-title{font-weight:800;color:#0f172a}
+.doc-meta{color:var(--muted);font-size:13px}
+.metrics{display:flex;gap:10px;align-items:center}
+.heatbar{width:220px;height:12px;border-radius:999px;background:#f3f4f6;overflow:hidden;border:1px solid #eef2ff}
+.heatbar > div{height:100%}
+.heat-r{background:var(--red);width:0}
+.heat-y{background:var(--yellow);width:0}
+.heat-g{background:var(--green);width:0}
+.counts{color:var(--muted);font-size:13px}
+
+
+.clauses-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+.clause-card{
+  padding:12px;border-radius:10px;background:linear-gradient(180deg,#ffffff,#fbfcff);
+  border-left:6px solid #e6e9f9;box-shadow:0 6px 18px rgba(12,18,40,0.04);cursor:pointer;transition:transform .12s,box-shadow .12s
+}
+.clause-card:hover{transform:translateY(-4px);box-shadow:0 14px 36px rgba(12,18,40,0.08)}
+.clause-meta{display:flex;justify-content:space-between;align-items:center}
+.clause-cat{font-weight:700;color:#111}
+.clause-risk{font-size:12px;padding:6px 8px;border-radius:999px;font-weight:700}
+.clause-orig{margin-top:8px;color:#263238;font-size:13px}
+.clause-simple{margin-top:8px;color:#0b6b2d;font-size:13px;background:#f0fff4;padding:8px;border-radius:8px;border:1px solid #ecfdf0}
+
+
+.right-col{display:flex;flex-direction:column;gap:12px}
+.panel{background:var(--card);padding:12px;border-radius:var(--radius);box-shadow:var(--shadow);display:flex;flex-direction:column;gap:10px}
+
+
+.detail-title{font-weight:800;color:var(--accent)}
+.detail-section{background:linear-gradient(180deg,#ffffff,#fbfbff);padding:10px;border-radius:10px;border:1px solid #f1f5ff}
+.detail-row{display:flex;justify-content:space-between;gap:10px}
+
+
+.checklist{display:flex;flex-direction:column;gap:8px}
+.check-item{display:flex;gap:10px;align-items:center;padding:8px;border-radius:8px;background:#fbfbff;border:1px solid #f1f5ff}
+.check-ok{color:var(--green);font-weight:700}
+.check-miss{color:var(--red);font-weight:700}
+
+
+.trust-wrap{display:flex;gap:10px;align-items:center}
+.trust-circle{width:84px;height:84px;border-radius:999px;background:linear-gradient(180deg,#fff,#f8f8ff);display:flex;align-items:center;justify-content:center;font-weight:800;color:var(--accent);font-size:20px;border:6px solid rgba(124,58,237,0.08)}
+
+
+.redlines{display:flex;flex-direction:column;gap:8px; overflow:auto; height: 300px}
+.redline-card{background:#fff5f5;border-left:6px solid #ffccd5;padding:10px;border-radius:8px;color:#7a1212}
+
+
+.modal{position:fixed;inset:0;background:rgba(3,7,18,0.45);display:none;align-items:center;justify-content:center;padding:16px}
+.modal .box{width:980px;max-width:98%;background:var(--card);padding:16px;border-radius:12px;box-shadow:var(--shadow);display:flex;flex-direction:column;gap:10px}
+.textarea{width:100%;min-height:140px;padding:10px;border-radius:8px;border:1px solid #eef2ff}
+
+
+.sticky-ask{position:fixed;right:20px;bottom:20px;z-index:60}
+.fab{background:linear-gradient(135deg,var(--accent),var(--accent-2));color:white;width:56px;height:56px;border-radius:999px;display:flex;align-items:center;justify-content:center;font-weight:800;cursor:pointer;box-shadow:0 12px 36px rgba(99,102,241,0.18);border:none}
+.chat-panel{position:fixed;right:20px;bottom:88px;width:360px;max-height:70vh;background:var(--card);border-radius:12px;box-shadow:var(--shadow);display:none;flex-direction:column;overflow:hidden}
+.chat-header{padding:10px;background:linear-gradient(90deg,var(--accent),var(--accent-2));color:white;display:flex;align-items:center;justify-content:space-between}
+.chat-body{padding:12px;display:flex;flex-direction:column;gap:8px;overflow:auto;max-height:46vh;background:#fbfdff}
+.chat-input{display:flex;padding:10px;border-top:1px solid #f1f5ff;gap:8px}
+.chat-input input{flex:1;padding:10px;border-radius:8px;border:1px solid #eef2ff}
+.small{font-size:13px;color:var(--muted)}
+
+
+.kv{display:flex;gap:8px;align-items:center}
+.center{display:flex;align-items:center;justify-content:center}
+.tag{background:#eef2ff;padding:6px 9px;border-radius:999px;color:var(--accent);font-weight:700;font-size:13px}
+
+
+@media (max-width:1080px){
+  .layout{grid-template-columns:1fr;gap:12px}
+  .right-col{order:3}
+  .sidebar{order:2}
+}
+</style>
+</head>
+<body>
+
+<div class="app">
+
+  
+  <div class="header">
+    <div class="brand">
+      <div class="logo">LD</div>
+      <div>
+        <div class="title">Legal Document Demystifier</div>
+        <div class="subtitle">Prototype — simplifies & highlights contracts (demo only)</div>
+      </div>
+    </div>
+
+    <div class="header-actions">
+      <button id="loadSample" class="btn">Load Employer Contract</button>
+      <button id="openCompare" class="btn ghost">Compare Contracts</button>
+      <button id="downloadSummary" class="btn ghost">Download Summary</button>
+    </div>
+  </div>
+
+  
+  <div class="layout">
+
+    
+    <aside class="sidebar">
+      <h4>Quick tools</h4>
+      <div class="nav">
+        <div class="side-item" id="showHeat">Show Risk Heatmap</div>
+        <div class="side-item" id="showChecklist">Before You Sign Checklist</div>
+        <div class="side-item" id="showRedlines">Redline Suggestions</div>
+        <div class="side-item" id="showJurisdiction">Jurisdiction Warnings</div>
+        <div class="side-item" id="showTrust">Trust Score</div>
+      </div>
+
+      <div style="margin-top:8px">
+        <div class="small" style="margin-bottom:6px">Multilingual</div>
+        <select id="langSelect" style="width:100%;padding:8px;border-radius:8px;border:1px solid #eef2ff">
+          <option>English</option>
+          <option>Hindi</option>
+          <option>French</option>
+        </select>
+      </div>
+
+      <div style="margin-top:12px">
+        <div class="small">Demo notes</div>
+        <div class="small" style="margin-top:6px;color:var(--muted)">Everything here is computed locally for the prototype. Suggestions are illustrative, not legal advice.</div>
+      </div>
+    </aside>
+
+    
+    <main class="doc" id="docMain">
+      <div class="doc-top">
+        <div class="doc-info">
+          <div id="docTitle" class="doc-title">No document loaded</div>
+          <div id="docMeta" class="doc-meta">Load the sample contract to begin analysis.</div>
+        </div>
+
+        <div class="metrics">
+          <div class="kv"><div class="small">Trust</div><div id="trustMini" class="tag">—</div></div>
+          <div class="heatbar" title="Risk distribution"><div class="heat-r"></div><div class="heat-y"></div><div class="heat-g"></div></div>
+          <div id="totals" class="counts">— clauses</div>
+        </div>
+      </div>
+
+      
+      <section>
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <div style="font-weight:700">Clause Risk Heatmap</div>
+          <div class="small">Click any block to jump to clause details</div>
+        </div>
+        <div id="heatGrid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-top:10px"></div>
+      </section>
+
+      
+      <section>
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <div style="font-weight:700">Clauses & Simplifications</div>
+          <div class="small">Simplified text is intent-based for demo</div>
+        </div>
+        <div id="clauseList" class="clauses-grid" style="margin-top:12px"></div>
+      </section>
+    </main>
+
+    
+    <aside class="right-col">
+      <div class="panel">
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <div><div class="small">Clause Details</div><div id="detailTitle" class="detail-title">Select a clause</div></div>
+          <div id="detailRiskTag" class="clause-risk" style="visibility:hidden"></div>
+        </div>
+        <div id="detailCard" class="detail-section small">Clause detail will appear here when you click a clause.</div>
+        <div style="display:flex;gap:8px;justify-content:flex-end">
+          <button id="copySuggestion" class="btn ghost" style="display:none">Copy Suggestion</button>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <div><div class="small">Before You Sign</div><div style="font-weight:800">Checklist</div></div>
+          <div class="small" id="checkCount">—</div>
+        </div>
+        <div id="checklist" class="checklist small"></div>
+      </div>
+
+      <div class="panel">
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <div><div class="small">Trust Score</div><div style="font-weight:800">Document Balance</div></div>
+          <div id="trustScoreWrap" class="trust-wrap">
+            <div id="trustCircle" class="trust-circle">—</div>
+          </div>
+        </div>
+        <div id="trustExplanation" class="small">—</div>
+      </div>
+
+      <div class="panel">
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <div><div class="small">Redline Suggestions</div><div style="font-weight:800">Automated Edits</div></div>
+        </div>
+        <div id="redlines" class="redlines small"></div>
+      </div>
+    </aside>
+
+  </div> 
+
+  <div style="display:flex;gap:8px;align-items:center;justify-content:flex-end">
+    <div class="small">Demo created for hackathon — frontend only</div>
+  </div>
+</div>
+
+
+<div id="compareModal" class="modal" aria-hidden="true">
+  <div class="box">
+    <div style="display:flex;justify-content:space-between;align-items:center">
+      <div style="font-weight:800">Compare Contracts</div>
+      <div style="display:flex;gap:8px">
+        <button id="runCompare" class="btn">Run Compare</button>
+        <button id="closeCompare" class="btn ghost">Close</button>
+      </div>
+    </div>
+    <div style="display:flex;gap:10px">
+      <div style="flex:1;display:flex;flex-direction:column;gap:6px">
+        <div style="font-weight:700">Primary (loaded)</div>
+        <textarea id="c1" class="textarea" readonly></textarea>
+      </div>
+      <div style="flex:1;display:flex;flex-direction:column;gap:6px">
+        <div style="font-weight:700">Second (paste to compare)</div>
+        <textarea id="c2" class="textarea" placeholder="Paste another contract here..."></textarea>
+      </div>
+    </div>
+    <div id="compareResult" class="small" style="margin-top:8px"></div>
+  </div>
+</div>
+
+
+<div class="sticky-ask">
+  <button id="fab" class="fab" title="Ask a question">💬</button>
+
+  <div id="chatPanel" class="chat-panel" role="dialog" aria-hidden="true">
+    <div class="chat-header">
+      <div style="font-weight:800">AI Legal Assistant</div>
+      <div style="display:flex;gap:8px">
+        <button id="langBtn" class="btn ghost" style="padding:6px">EN</button>
+        <button id="closeChat" class="btn ghost" style="padding:6px">✖</button>
+      </div>
+    </div>
+    <div id="chatBody" class="chat-body">
+      <div class="small">Ask about the contract and the assistant will reply citing clause numbers where possible.</div>
+      
+    </div>
+    <div class="chat-input">
+      <input id="chatInput" placeholder="E.g., What happens if I leave early?" />
+      <button id="chatSend" class="btn">Ask</button>
+    </div>
+  </div>
+</div>
+
+<script>
+
+
+const sampleContract = `EMPLOYMENT AGREEMENT
+
+1. Parties
+This Employment Agreement ("Agreement") is entered into between Acme Solutions Pvt. Ltd. ("Employer") and Rahul Kumar ("Employee").
+
+2. Term
+The employment shall commence on 1st October 2025 and continue until terminated according to this Agreement.
+
+3. Position and Duties
+Employee shall serve as Senior Software Engineer and perform duties assigned by Employer.
+
+4. Salary
+Employer shall pay Employee a salary of INR 1,200,000 per annum payable monthly on the 1st.
+
+5. Probation
+Employee will be on probation for the first 6 months. During probation, Employer may terminate employment with 7 days' notice.
+
+6. Termination and Notice
+After probation, either party may terminate employment with 3 months' prior written notice. Employer may terminate immediately for cause (gross misconduct).
+
+7. Non-Compete
+Employee shall not accept employment with any competitor for a period of 24 months after termination.
+
+8. Confidentiality
+Employee shall not disclose confidential information. This obligation survives termination.
+
+9. Intellectual Property
+All inventions and works created during employment shall be the exclusive property of Employer.
+
+10. Liability and Indemnity
+Employee shall indemnify and hold harmless Employer from claims arising out of Employee's breach, including due to gross negligence.
+
+11. Arbitration and Governing Law
+Any disputes shall be settled by arbitration in Mumbai. This Agreement is governed by the laws of India.
+
+12. Expenses and Reimbursement
+Employer will reimburse reasonable business expenses upon submission of receipts.
+
+13. Data Protection
+Employer may process Employee personal data as required for payroll and compliance.
+
+14. Severance
+If Employer terminates without cause, Employee is entitled to severance equal to 3 months' salary.
+
+15. Entire Agreement
+This Agreement constitutes the entire understanding between the parties.`;
+
+
+
+let state = {
+  raw: '',
+  clauses: [],   
+  counts: {high:0, medium:0, low:0},
+  trust: null
+};
+
+
+const loadBtn = document.getElementById('loadSample');
+const openCompareBtn = document.getElementById('openCompare');
+const compareModal = document.getElementById('compareModal');
+const closeCompare = document.getElementById('closeCompare');
+const runCompare = document.getElementById('runCompare');
+const c1 = document.getElementById('c1');
+const c2 = document.getElementById('c2');
+const compareResult = document.getElementById('compareResult');
+const downloadSummary = document.getElementById('downloadSummary');
+
+const heatGrid = document.getElementById('heatGrid');
+const clauseList = document.getElementById('clauseList');
+const docTitle = document.getElementById('docTitle');
+const docMeta = document.getElementById('docMeta');
+const heatR = document.querySelector('.heat-r');
+const heatY = document.querySelector('.heat-y');
+const heatG = document.querySelector('.heat-g');
+const totals = document.getElementById('totals');
+const trustMini = document.getElementById('trustMini');
+const trustCircle = document.getElementById('trustCircle');
+const trustExplanation = document.getElementById('trustExplanation');
+
+const detailTitle = document.getElementById('detailTitle');
+const detailCard = document.getElementById('detailCard');
+const detailRiskTag = document.getElementById('detailRiskTag');
+const copySuggestionBtn = document.getElementById('copySuggestion');
+
+const checklistEl = document.getElementById('checklist');
+const checkCount = document.getElementById('checkCount');
+const redlinesEl = document.getElementById('redlines');
+
+const fab = document.getElementById('fab');
+const chatPanel = document.getElementById('chatPanel');
+const chatBody = document.getElementById('chatBody');
+const chatInput = document.getElementById('chatInput');
+const chatSend = document.getElementById('chatSend');
+const closeChat = document.getElementById('closeChat');
+const langSelect = document.getElementById('langSelect');
+const langBtn = document.getElementById('langBtn');
+
+const showHeatBtn = document.getElementById('showHeat');
+const showChecklistBtn = document.getElementById('showChecklist');
+const showRedlinesBtn = document.getElementById('showRedlines');
+const showJurBtn = document.getElementById('showJurisdiction');
+const showTrustBtn = document.getElementById('showTrust');
+
+
+function splitClauses(text){
+  
+  const parts = text.split(/\n\s*\n/).map(s=>s.trim()).filter(Boolean);
+  let clauses = [];
+  for(const p of parts){
+    
+    if(/^\d+\.\s*/.test(p) || /^[A-Z][A-Za-z0-9\s\-\']{2,}\n/.test(p)){
+      clauses.push(p);
+    } else {
+      
+      clauses.push(p);
+    }
+  }
+  
+  const final = [];
+  clauses.forEach(c=>{
+    const lines = c.split(/\n/).map(l=>l.trim()).filter(Boolean);
+    if(lines.length>1 && /^\d+\./.test(lines[0])){ final.push(c); }
+    else {
+      
+      const sents = c.split(/(?<=[.?!])\s+(?=[A-Z])/);
+      sents.forEach(s=>final.push(s.trim()));
+    }
+  });
+  return final.filter(Boolean);
+}
+
+function classify(text){
+  const t=text.toLowerCase();
+  if(/non-?compete|competitor/.test(t)) return 'Non-Compete';
+  if(/salary|pay|remuneration|compensation/.test(t)) return 'Salary';
+  if(/termination|notice|terminate|severance|probation/.test(t)) return 'Termination';
+  if(/confidential|non-?disclos/.test(t)) return 'Confidentiality';
+  if(/intellectual property|inventions|patent|copyright/.test(t)) return 'Intellectual Property';
+  if(/liabilit|indemnif|indemnity|hold harmless|negligence/.test(t)) return 'Liability';
+  if(/arbitration|governing law|jurisdiction|laws of/i.test(t)) return 'Governing Law';
+  if(/expenses|reimburse|travel/i.test(t)) return 'Expenses';
+  if(/data protection|personal data|privacy/i.test(t)) return 'Data Protection';
+  return 'General';
+}
+
+function simplify(text){
+  
+  return text.replace(/\bshall\b/gi,'must')
+             .replace(/\bherein\b/gi,'in this document')
+             .replace(/\bcommence\b/gi,'start')
+             .replace(/\bprior written notice\b/gi,'written notice beforehand')
+             .replace(/\bwithout cause\b/gi,'without a reason')
+             .replace(/\bperiod of (\d+)\s*(months|month|years|year)/gi,'$1 $2');
+}
+
+function detectRisk(text, category){
+  const t=text.toLowerCase();
+  if(/non-?compete/.test(t)){
+    const m = t.match(/(\d+)\s*(months|month|years|year)/);
+    if(m){
+      const n=parseInt(m[1]);
+      if(/year/.test(m[2]) || n>12) return 'high';
+      if(n>6) return 'medium';
+      return 'medium';
+    }
+    return 'high';
+  }
+  if(/indemnif|hold harmless|liability|liab/i.test(t)){
+    if(/gross negligence/i.test(t)) return 'medium';
+    return 'high';
+  }
+  if(/90 days|3 months|6 months.*notice/i.test(t) && /notice/.test(t)) return 'medium';
+  if(/probation.*6 months/i.test(t)) return 'medium';
+  if(/confidential|salary|expenses|data protection/i.test(t)) return 'low';
+  if(/arbitration|jurisdiction|govern/i.test(t)) return 'medium';
+  return 'low';
+}
+
+function redlineSuggestionFor(cl){
+  const t=cl.text.toLowerCase();
+  if(cl.category==='Non-Compete') {
+    return 'Recommend limiting non-compete to 6 months, specify geographies and roles. Example: "Employee shall not join a direct competitor in India for 6 months in a similar role."';
+  }
+  if(cl.category==='Termination') {
+    return 'Consider symmetric notice periods or reduce employee notice to 30 days. Define "for cause" clearly.';
+  }
+  if(cl.category==='Liability') {
+    return 'Limit indemnity to willful misconduct or gross negligence and cap damages (e.g., 6 months base salary).';
+  }
+  if(cl.category==='Governing Law') {
+    return 'If this is foreign law, ask for local law or neutral arbitration; consider seat of arbitration in your country.';
+  }
+  if(cl.category==='Salary') {
+    return 'Clarify gross vs net, include variable pay breakup and payment dates.';
+  }
+  return 'Clarify ambiguous terms and add reasonable limits for obligations on the employee.';
+}
+
+
+function renderHeatAndClauses(){
+  heatGrid.innerHTML=''; clauseList.innerHTML='';
+  const total = state.clauses.length || 1;
+  const counts={high:0,medium:0,low:0};
+  state.clauses.forEach(cl=>{
+    counts[cl.risk]++;
+    
+    const tile = document.createElement('div');
+    tile.className='clause-card';
+    tile.style.borderLeft = (cl.risk==='high'?`6px solid ${getComputedStyle(document.documentElement).getPropertyValue('--red')}` :
+                             cl.risk==='medium'?`6px solid ${getComputedStyle(document.documentElement).getPropertyValue('--yellow')}` :
+                             `6px solid ${getComputedStyle(document.documentElement).getPropertyValue('--green')}`);
+    tile.innerHTML = `<div class="clause-meta"><div class="clause-cat">${cl.category}</div><div class="small">${'Clause #'+cl.id}</div></div>
+                      <div class="clause-orig">${escapeHtml(cl.text.slice(0,160))}${cl.text.length>160?'…':''}</div>`;
+    tile.onclick = ()=> showDetail(cl);
+    heatGrid.appendChild(makeHeatCell(cl));
+    
+    const card = document.createElement('div');
+    card.className='clause-card';
+    card.onclick = ()=> showDetail(cl);
+    card.innerHTML = `<div class="clause-meta"><div class="clause-cat">${escapeHtml(cl.category)}</div>
+                      <div class="clause-risk ${cl.risk==='high'?'badge-high':''}">${cl.risk.toUpperCase()}</div></div>
+                      <div class="clause-orig">${escapeHtml(cl.text.slice(0,140))}${cl.text.length>140?'…':''}</div>
+                      <div class="clause-simple">${escapeHtml(cl.simple)}</div>`;
+    clauseList.appendChild(card);
+  });
+  state.counts=counts;
+  
+  heatR.style.width = (counts.high/total*100)+'%';
+  heatY.style.width = (counts.medium/total*100)+'%';
+  heatG.style.width = (counts.low/total*100)+'%';
+  totals.textContent = `${state.clauses.length} clauses • H:${counts.high} M:${counts.medium} L:${counts.low}`;
+  
+  state.trust = computeTrust();
+  trustMini.textContent = state.trust + '%';
+  trustCircle.textContent = state.trust + '%';
+  trustExplanation.textContent = state.trust < 50 ? 'This document appears employer-leaning (lower trust).' : 'Document looks balanced.';
+  
+  generateChecklist();
+  renderRedlines();
+}
+
+
+function makeHeatCell(cl){
+  const d = document.createElement('div');
+  d.style.padding='12px';
+  d.style.borderRadius='10px';
+  d.style.display='flex';
+  d.style.flexDirection='column';
+  d.style.justifyContent='center';
+  d.style.alignItems='flex-start';
+  d.style.cursor='pointer';
+  d.style.transition='transform .12s';
+  d.onclick = ()=> showDetail(cl);
+  d.onmouseover = ()=> d.style.transform='translateY(-4px)';
+  d.onmouseout = ()=> d.style.transform='translateY(0)';
+  if(cl.risk==='high'){ d.style.background = '#fff0f0'; d.style.border='1px solid rgba(239,68,68,0.08)'; d.innerHTML = `<div style="font-weight:800;color:${getComputedStyle(document.documentElement).getPropertyValue('--red')}">${escapeHtml(cl.category)}</div><div class="small" style="margin-top:6px">${'Clause #'+cl.id}</div>`;}
+  else if(cl.risk==='medium'){ d.style.background='#fff9ec'; d.style.border='1px solid rgba(245,158,11,0.06)'; d.innerHTML = `<div style="font-weight:800;color:${getComputedStyle(document.documentElement).getPropertyValue('--yellow')}">${escapeHtml(cl.category)}</div><div class="small" style="margin-top:6px">${'Clause #'+cl.id}</div>`;}
+  else { d.style.background='#f0fff4'; d.style.border='1px solid rgba(16,163,78,0.06)'; d.innerHTML = `<div style="font-weight:800;color:${getComputedStyle(document.documentElement).getPropertyValue('--green')}">${escapeHtml(cl.category)}</div><div class="small" style="margin-top:6px">${'Clause #'+cl.id}</div>`;}
+  return d;
+}
+
+function showDetail(cl){
+  detailTitle.textContent = `${cl.category} — Clause #${cl.id}`;
+  detailCard.innerHTML = `<div style="display:flex;flex-direction:column;gap:8px">
+    <div style="font-size:14px;font-weight:700;color:#0f172a">${escapeHtml(cl.simple)}</div>
+    <div style="color:#334155;font-size:13px"><strong>Original:</strong> ${escapeHtml(cl.text)}</div>
+    <div style="margin-top:6px"><strong>Category:</strong> ${escapeHtml(cl.category)}</div>
+    <div style="margin-top:6px"><strong>Risk:</strong> ${cl.risk.toUpperCase()}</div>
+    <div style="margin-top:8px"><strong>Suggestion:</strong> ${escapeHtml(redlineSuggestionFor(cl))}</div>
+  </div>`;
+  detailRiskTag.style.visibility='visible';
+  detailRiskTag.textContent = cl.risk.toUpperCase();
+  copySuggestionBtn.style.display='inline-block';
+  copySuggestionBtn.onclick = ()=> {
+    navigator.clipboard?.writeText(redlineSuggestionFor(cl));
+    copySuggestionBtn.textContent='Copied';
+    setTimeout(()=> copySuggestionBtn.textContent='Copy Suggestion',1200);
+  };
+}
+
+
+function generateChecklist(){
+  checklistEl.innerHTML='';
+  const items = [];
+  const term = state.clauses.find(c=>/terminate|notice/i.test(c.text) || c.category==='Termination');
+  if(!term) items.push({ok:false, text:'No clear termination/notice clause — ask to include notice terms.'});
+  else items.push({ok:true, text:`Termination clause found (Clause #${term.id}).`});
+  const nc = state.clauses.find(c=>/non-?compete|competitor/i.test(c.text) || c.category==='Non-Compete');
+  if(nc){
+    const m = nc.text.match(/(\d+)\s*(months|month|years|year)/i);
+    if(m){
+      const n = parseInt(m[1]);
+      if(/year/i.test(m[2])||n>12) items.push({ok:false,text:`Non-compete long (${m[0]}). Consider reducing to <=6 months.`});
+      else if(n>6) items.push({ok:false,text:`Non-compete is ${m[0]}. Consider shortening.`});
+      else items.push({ok:true,text:`Non-compete present (Clause #${nc.id}).`});
+    } else items.push({ok:false,text:'Non-compete clause present but duration unclear.'});
+  } else items.push({ok:true,text:'No non-compete found.'});
+  const conf = state.clauses.find(c=>/confidential/i.test(c.text) || c.category==='Confidentiality');
+  if(!conf) items.push({ok:false,text:'Confidentiality clause missing — add NDAs if needed.'});
+  else items.push({ok:true,text:`Confidentiality clause found (Clause #${conf.id}).`});
+  const ip = state.clauses.find(c=>/intellectual|invention|patent/i.test(c.text) || c.category==='Intellectual Property');
+  if(!ip) items.push({ok:false,text:'IP assignment missing — clarify ownership.'});
+  else items.push({ok:true,text:`IP clause found (Clause #${ip.id}).`});
+  const gov = state.clauses.find(c=>/governing law|jurisdiction|arbitrat/i.test(c.text) || c.category==='Governing Law');
+  if(gov) items.push({ok:false, text:`Governing law found (Clause #${gov.id}). Check if it favors employer.`});
+  else items.push({ok:true, text:'Governing law not explicit — add if needed.'});
+  
+  checkCount.textContent = `${items.length} checks`;
+  items.forEach(it=>{
+    const d = document.createElement('div'); d.className='check-item';
+    d.innerHTML = `<div style="width:10px;height:10px;border-radius:3px;background:${it.ok? 'rgba(16,163,78,0.12)':'rgba(239,68,68,0.12)'};border:1px solid #f1f5f9"></div>
+                   <div style="flex:1;color:${it.ok? '#065f46':'#7a1212'}">${escapeHtml(it.text)}</div>`;
+    checklistEl.appendChild(d);
+  });
+}
+
+
+function renderRedlines(){
+  redlinesEl.innerHTML='';
+  const risky = state.clauses.filter(c=>c.risk==='high' || c.risk==='medium');
+  risky.forEach(c=>{
+    const d = document.createElement('div'); d.className='redline-card';
+    d.innerHTML = `<strong>Clause #${c.id} — ${escapeHtml(c.category)}</strong><div style="margin-top:6px">${escapeHtml(redlineSuggestionFor(c))}</div>`;
+    redlinesEl.appendChild(d);
+  });
+  if(risky.length===0) redlinesEl.textContent='No redline suggestions — document looks balanced.';
+}
+
+
+function findJurisdiction(){
+  const g = state.clauses.find(c=>/governing law|jurisdiction|arbitration|laws of/i.test(c.text) || c.category==='Governing Law');
+  return g || null;
+}
+
+
+function computeTrust(){
+  let score = 80;
+  let counts = {high:0,medium:0,low:0};
+  state.clauses.forEach(c => counts[c.risk]++);
+  score -= counts.high * 18;
+  score -= counts.medium * 6;
+  score += counts.low * 2;
+  score = Math.max(0, Math.min(100, Math.round(score)));
+  state.counts = counts;
+  return score;
+}
+
+/* compare function (simple heuristic) */
+function compareContracts(leftText, rightText){
+  const leftClauses = splitClauses(leftText).map(s=>({s,cat:classify(s)}));
+  const rightClauses = splitClauses(rightText).map(s=>({s,cat:classify(s)}));
+  const leftCats = new Set(leftClauses.map(l=>l.cat));
+  const rightCats = new Set(rightClauses.map(r=>r.cat));
+  const added = [...rightCats].filter(x=>!leftCats.has(x));
+  const missing = [...leftCats].filter(x=>!rightCats.has(x));
+  let out = `<div><strong>Categories added in second contract:</strong> ${added.length?escapeHtml(added.join(', ')):'None'}</div>`;
+  out += `<div style="margin-top:6px"><strong>Categories missing in second contract:</strong> ${missing.length?escapeHtml(missing.join(', ')):'None'}</div>`;
+  // compare important keys
+  const keys=['Salary','Termination','Non-Compete','Liability','Governing Law'];
+  keys.forEach(k=>{
+    const la = leftClauses.find(x=>x.cat===k);
+    const rb = rightClauses.find(x=>x.cat===k);
+    if(la || rb){
+      out += `<div style="margin-top:8px"><strong>${k}</strong><div style="margin-top:4px"><em>Primary:</em> ${la?escapeHtml(la.s):'<span style="color:#777">— not present</span>'}</div><div style="margin-top:4px"><em>Second:</em> ${rb?escapeHtml(rb.s):'<span style="color:#777">— not present</span>'}</div></div>`;
+    }
+  });
+  return out;
+}
+
+/* download summary */
+function downloadSummaryFile(){
+  let lines = [];
+  lines.push('Contract Summary\n');
+  lines.push('Trust Score: ' + (state.trust || computeTrust()) + '\n');
+  state.clauses.forEach(c=>{
+    lines.push(`Clause #${c.id} | ${c.category} | Risk: ${c.risk}`);
+    lines.push('Simplified: ' + c.simple);
+    lines.push('Suggestion: ' + redlineSuggestionFor(c));
+    lines.push('---');
+  });
+  const blob = new Blob([lines.join('\n')], {type:'text/plain'});
+  const a = document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='contract_summary.txt'; a.click();
+}
+
+/* chat Q&A grounded in contract */
+function chatAsk(q){
+  if(!q) return;
+  appendChat('user', q);
+  let ans = "I couldn't find a direct answer. Try asking about a clause number or specific term.";
+  const ql = q.toLowerCase();
+  // direct clause number
+  const m = q.match(/clause\s*#?\s*(\d+)/i);
+  if(m){
+    const id = parseInt(m[1]); const c = state.clauses.find(x=>x.id===id);
+    if(c) ans = `Clause #${c.id} (${c.category}): ${c.simple} Suggestion: ${redlineSuggestionFor(c)}`;
+  } else if(/leave|quit|resign|notice/i.test(ql)){
+    const term = state.clauses.find(c=>/terminate|notice/i.test(c.text) || c.category==='Termination');
+    if(term) ans = `Clause #${term.id}: ${term.simple} Suggestion: ${redlineSuggestionFor(term)}`;
+  } else if(/non-?compete|competitor/i.test(ql)){
+    const nc = state.clauses.find(c=>/non-?compete|competitor/i.test(c.text) || c.category==='Non-Compete');
+    if(nc) ans = `Clause #${nc.id}: ${nc.simple} Risk: ${nc.risk}. Suggestion: ${redlineSuggestionFor(nc)}`;
+  } else if(/salary|pay|compensation/i.test(ql)){
+    const s = state.clauses.find(c=>/salary|pay|remuneration/i.test(c.text) || c.category==='Salary');
+    if(s) ans = `Clause #${s.id}: ${s.simple}. Suggestion: ${redlineSuggestionFor(s)}`;
+  } else if(/jurisdiction|governing law|arbitration/i.test(ql)){
+    const g = findJurisdiction();
+    if(g) ans = `Clause #${g.id}: ${(g.text||g.category)}. Warning: this sets governing law: verify local applicability.`;
+  } else {
+    // fallback: find clause containing keyword
+    const tok = ql.split(/\s+/).find(Boolean);
+    const hit = state.clauses.find(c=>c.text.toLowerCase().includes(tok) || c.simple.toLowerCase().includes(tok));
+    if(hit) ans = `Clause #${hit.id} (${hit.category}): ${hit.simple}`;
+  }
+  setTimeout(()=> appendChat('ai', ans), 600);
+}
+
+function appendChat(who, text){
+  const d = document.createElement('div'); d.style.display='flex';
+  const bubble = document.createElement('div'); bubble.className='bubble'; bubble.style.maxWidth='84%';
+  bubble.textContent = text;
+  if(who==='ai'){ d.style.justifyContent='flex-start'; bubble.className='bubble ai'; }
+  else { d.style.justifyContent='flex-end'; bubble.className='bubble user'; }
+  chatBody.appendChild(bubble); chatBody.scrollTop = chatBody.scrollHeight;
+}
+
+/* small utility */
+function escapeHtml(s){ return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+/* ---------- wire events ---------- */
+
+loadBtn.addEventListener('click', ()=> {
+  loadContract(sampleContract);
+});
+
+openCompareBtn.addEventListener('click', ()=> { compareModal.style.display='flex'; });
+
+closeCompare.addEventListener('click', ()=> { compareModal.style.display='none'; compareResult.innerHTML=''; });
+runCompare.addEventListener('click', ()=> {
+  const left = state.raw || '';
+  const right = c2.value || '';
+  if(!right.trim()){ compareResult.innerHTML='<div style="color:#7a1212">Please paste a second contract to compare.</div>'; return; }
+  compareResult.innerHTML = compareContracts(left,right);
+});
+
+downloadSummary.addEventListener('click', downloadSummaryFile);
+
+fab.addEventListener('click', ()=> {
+  chatPanel.style.display = chatPanel.style.display==='flex' ? 'none' : 'flex';
+  chatBody.scrollTop = chatBody.scrollHeight;
+});
+closeChat.addEventListener('click', ()=> chatPanel.style.display='none');
+chatSend.addEventListener('click', ()=> { chatAsk(chatInput.value); chatInput.value=''; });
+chatInput.addEventListener('keypress', (e)=> { if(e.key==='Enter'){ e.preventDefault(); chatAsk(chatInput.value); chatInput.value=''; } });
+
+langSelect.addEventListener('change', (e)=> {
+  const lang = e.target.value;
+  translateSimplified(lang);
+  langBtn.textContent = lang.substring(0,2).toUpperCase();
+});
+langBtn.addEventListener('click', ()=> {
+  const current = langSelect.value;
+  const next = current==='English'?'Hindi':current==='Hindi'?'French':'English';
+  langSelect.value = next; langSelect.dispatchEvent(new Event('change'));
+});
+
+// sidebar quick actions
+showHeatBtn.addEventListener('click', ()=> {
+  document.querySelector('#heatGrid').scrollIntoView({behavior:'smooth'});
+});
+showChecklistBtn.addEventListener('click', ()=> {
+  document.querySelector('#checklist').scrollIntoView({behavior:'smooth'});
+});
+showRedlinesBtn.addEventListener('click', ()=> {
+  document.querySelector('#redlines').scrollIntoView({behavior:'smooth'});
+});
+showJurBtn.addEventListener('click', ()=> {
+  const g = findJurisdiction();
+  if(!g) alert('No governing law/arbitration clause detected.');
+  else alert(`Governing law detected in clause #${g.id}:\n\n${g.text}\n\nThis sets the law/forum for disputes - review carefully.`);
+});
+showTrustBtn.addEventListener('click', ()=> {
+  document.getElementById('trustCircle').scrollIntoView({behavior:'smooth'});
+});
+
+/* translate simplified (demo): naive mapping for demo purposes */
+function translateSimplified(lang){
+  // For demo we only change the 'simple' text content with some naive transformations.
+  if(!state.clauses.length) return;
+  state.clauses.forEach(cl=>{
+    if(lang==='English'){ /* keep original simplified */ cl.displaySimple = cl.simple; }
+    else if(lang==='Hindi'){
+      // very naive transliteration-like demo (not real translation)
+      cl.displaySimple = cl.simple.replace(/You/g,'Aap').replace(/must/g,'zaroori hai').replace(/salary/g,'vetan').replace(/leave/g,'chhodna');
+    } else if(lang==='French'){
+      cl.displaySimple = cl.simple.replace(/You/g,'Vous').replace(/must/g,'devez').replace(/salary/g,'salaire').replace(/leave/g,'quitter');
+    }
+  });
+  // rerender clause list to show displaySimple
+  clauseList.querySelectorAll('.clause-card').forEach((el,i)=>{
+    const cl = state.clauses[i];
+    const simDiv = el.querySelector('.clause-simple');
+    if(simDiv) simDiv.textContent = cl.displaySimple || cl.simple;
+  });
+}
+
+/* ---------- main load/initialize ---------- */
+function loadContract(text){
+  state.raw = text;
+  const parts = splitClauses(text);
+  state.clauses = parts.map((p,i)=>{
+    const cat = classify(p);
+    const simple = simplify(p);
+    const risk = detectRisk(p,cat);
+    return { id:i+1, text:p, category:cat, simple, displaySimple:simple, risk };
+  });
+  // render title/meta
+  docTitle.textContent = 'Employer — Sample Employment Agreement';
+  docMeta.textContent = 'Parsed contract (demo). Click clauses for details.';
+  // fill compare primary textarea
+  c1.value = text;
+  // render visuals
+  renderHeatAndClauses();
+  // initial chat greeting
+  chatBody.innerHTML = '<div class="small">Hello — ask about the loaded contract. Example: "What happens if I leave early?"</div>';
+  // set initial language
+  langSelect.value = 'English';
+  langBtn.textContent = 'EN';
+}
+
+/* small helper to escape HTML already defined above */
+
+function escapeHtml(s){ return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+/* initialize sample on load */
+window.addEventListener('load', ()=> {
+  loadContract(sampleContract);
+});
+
+/* helper: find jurisdiction clause */
+function findJurisdiction(){ return state.clauses.find(c=>/govern|jurisdiction|arbitration|laws of/i.test(c.text) || c.category==='Governing Law'); }
+
+</script>
+
+</body>
+</html>
